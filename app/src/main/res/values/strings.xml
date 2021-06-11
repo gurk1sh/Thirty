@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="dice">Dice</string>
+    <string name="button">THROW</string>
+</resources>
