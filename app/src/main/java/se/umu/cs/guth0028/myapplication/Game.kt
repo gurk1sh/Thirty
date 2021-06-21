@@ -26,13 +26,22 @@ class Game {
 
     val gameRounds = gameModes.size
 
-    val dices = listOf(
-        Dice(1, false, R.drawable.grey1),
-        Dice(2, false, R.drawable.grey2),
-        Dice(3, false, R.drawable.grey3),
-        Dice(4, false, R.drawable.grey4),
-        Dice(5, false, R.drawable.grey5),
-        Dice(6, false, R.drawable.grey6),
+    val greyDices = listOf(
+        Dice(1, false, false, R.drawable.grey1),
+        Dice(2, false, false, R.drawable.grey2),
+        Dice(3, false, false,R.drawable.grey3),
+        Dice(4, false, false,R.drawable.grey4),
+        Dice(5, false, false,R.drawable.grey5),
+        Dice(6, false, false,R.drawable.grey6),
+    )
+
+    val redDices = listOf(
+        Dice(1, false, false,R.drawable.red1),
+        Dice(2, false, false,R.drawable.red2),
+        Dice(3, false, false, R.drawable.red3),
+        Dice(4, false, false,R.drawable.red4),
+        Dice(5, false, false,R.drawable.red5),
+        Dice(6, false, false,R.drawable.red6),
     )
 }
 

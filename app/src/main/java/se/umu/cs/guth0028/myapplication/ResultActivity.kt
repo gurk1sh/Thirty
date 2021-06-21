@@ -3,6 +3,7 @@ package se.umu.cs.guth0028.myapplication
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,9 +18,14 @@ class ResultActivity : AppCompatActivity() {
         val binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        var gameNameList= intent.getSerializableExtra("GameName") as ArrayList<*>
+        var gameScoreList=intent.getSerializableExtra("GameScore") as ArrayList<*>
+        Log.d("Gustaf", "onCreate: ")
+
+
+
+
         binding.toastButton.setOnClickListener {
-            val gameResultList = intent.getParcelableArrayListExtra<GameResult>(GAME_RESULT_LIST)
-            if (gameResultList != null) {
                val gameModeTextViews = listOf (
                    binding.textView1,
                    binding.textView3,
@@ -46,43 +52,28 @@ class ResultActivity : AppCompatActivity() {
                     binding.textView20
                 )
 
-                setTexts(gameModeTextViews, scoreTextViews, gameResultList)
-
-            }
+                setTexts(gameModeTextViews, scoreTextViews, gameNameList, gameScoreList)
         }
 
     }
 
-    private fun setTexts(gameModeTextViews: List<TextView>, scoreTextViews: List<TextView>, scoreList: ArrayList<GameResult>) {
+    private fun setTexts(gameModeTextViews: List<TextView>, scoreTextViews: List<TextView>, gameNameList: ArrayList<*>, gameScoreList: ArrayList<*>) {
         /*
         Method for setting all textViews to the different gameModes and their respective score
         */
 
-        var newList = scoreList
         var gameModeCounter = 0
-        var scoreSum = 0
-        for (textView in gameModeTextViews) { //sets the left textviews with the gameModes
-            textView.text=scoreList[gameModeCounter].gameName
+        var scoreCounter = 0
+
+        for (textView in gameModeTextViews) {
+            textView.text=gameNameList[gameModeCounter].toString()
             gameModeCounter = gameModeCounter + 1
         }
 
-        for (GameResult in newList) { //crappy idiot kotlin wont work
-            for (Dice in GameResult.diceSet) {
-                Toast.makeText(this, "värde: ${Dice.value}", Toast.LENGTH_SHORT).show()
-                scoreSum = scoreSum + Dice.value
-                Toast.makeText(this, "scoreSum är nu: ${scoreSum}", Toast.LENGTH_SHORT).show()
-            }
-            Toast.makeText(this, "scoreSum: ${scoreSum}", Toast.LENGTH_SHORT).show()
-            scoreSum = 0
-            Toast.makeText(this, "resettad scoreSum: ${scoreSum}", Toast.LENGTH_SHORT).show()
+        for (textView in scoreTextViews) {
+            textView.text=gameScoreList[scoreCounter].toString()
+            scoreCounter = scoreCounter + 1
         }
-    }
 
-    companion object {
-        fun newIntent(packageContext: Context, gameResultList: List<GameResult>): Intent {
-            return Intent(packageContext, ResultActivity::class.java).apply {
-                putParcelableArrayListExtra(GAME_RESULT_LIST, gameResultList as ArrayList<GameResult>)
-            }
-        }
     }
 }

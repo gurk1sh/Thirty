@@ -4,8 +4,7 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-class Dice (var value: Int, var isSaved: Boolean, var drawableId: Int ) : Parcelable {
-
+class Dice (var value: Int, var isSaved: Boolean, var isPaired: Boolean, var drawableId: Int ) : Parcelable {
     fun throwDice () {
         this.value = (1..6).random()
         when (this.value) {
