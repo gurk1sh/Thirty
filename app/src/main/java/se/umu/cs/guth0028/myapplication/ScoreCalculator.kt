@@ -1,11 +1,10 @@
 package se.umu.cs.guth0028.myapplication
 
-import android.util.Log
-
-class ScoreCalculator() {
+class ScoreCalculator {
     companion object {
         fun calculateScore (selectedItem: String, listOfPairs: MutableList<Int>) : Int {
             var score = 0
+
             when (selectedItem) {
                "low" -> for (pair in listOfPairs) {
                    if (pair < 3) {
@@ -13,21 +12,67 @@ class ScoreCalculator() {
                    }
                }
 
-                "4" -> for (i in 0..3) {
-                    if (listOfPairs[i] + listOfPairs[i+1] == 4) {
-                        score = score + 4
+                "4" -> for (pair in getPairs(listOfPairs)) {
+                        if (pair == 4) {
+                            score += pair
+                        }
+                    }
+
+                "5" -> for (pair in getPairs(listOfPairs)) {
+                    if (pair == 5) {
+                        score += pair
                     }
                 }
-                "5" -> score = 3
-                "6" -> score = 4
-                "7" -> score = 5
-                "8" -> score = 6
-                "9" -> score = 7
-                "10" -> score = 8
-                "11" -> score = 9
-                "12" -> score = 10
+                "6" -> for (pair in getPairs(listOfPairs)) {
+                    if (pair == 6) {
+                        score += pair
+                    }
+                }
+                "7" -> for (pair in getPairs(listOfPairs)) {
+                    if (pair == 7) {
+                        score += pair
+                    }
+                }
+                "8" -> for (pair in getPairs(listOfPairs)) {
+                    if (pair == 8) {
+                        score += pair
+                    }
+                }
+                "9" -> for (pair in getPairs(listOfPairs)) {
+                    if (pair == 9) {
+                        score += pair
+                    }
+                }
+                "10" -> for (pair in getPairs(listOfPairs)) {
+                    if (pair == 10) {
+                        score += pair
+                    }
+                }
+                "11" -> for (pair in getPairs(listOfPairs)) {
+                    if (pair == 11) {
+                        score += pair
+                    }
+                }
+                "12" -> for (pair in getPairs(listOfPairs)) {
+                    if (pair == 12) {
+                        score += pair
+                    }
+                }
             }
             return score
+        }
+        private fun getPairs(listOfPairs: MutableList<Int>) : MutableList<Int> {
+            var calculatedPairs = mutableListOf<Int>()
+            var counter = 0
+            val firstPair = listOfPairs[counter] + listOfPairs[counter+1]
+            calculatedPairs.add(firstPair)
+            counter += 2
+            val secondPair = listOfPairs[counter] + listOfPairs[counter+1]
+            calculatedPairs.add(secondPair)
+            counter += 2
+            val thirdPair = listOfPairs[counter] + listOfPairs[counter+1]
+            calculatedPairs.add(thirdPair)
+            return calculatedPairs
         }
     }
 }

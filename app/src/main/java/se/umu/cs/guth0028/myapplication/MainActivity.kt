@@ -3,6 +3,7 @@ package se.umu.cs.guth0028.myapplication
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         initDiceOnClickListeners(binding)
 
         binding.button.setOnClickListener {
-            if (game.round < game.gameRounds){
+            if (game.round <= game.gameRounds){
                 button.text = "THROW"
                 submitButton.isEnabled = false
                 for (dice in game.greyDices) {
@@ -55,13 +56,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     button.isEnabled=false
                     button.text = "New round"
                     submitButton.isEnabled = true
-                    val selectedItem = spinner.selectedItem.toString()
-                    listOfModes.add(selectedItem)
-                    game.score = ScoreCalculator.calculateScore(selectedItem, listOfPairs)
-                    listOfResult.add(game.score)
                     game.round = game.round + 1
                     game.throws = 0
-                    game.score = 0
                 }
             }
             else {
@@ -72,12 +68,17 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         submitButton.setOnClickListener {
-            if (game.round < game.gameRounds) {
+            if (game.round <= game.gameRounds) {
                 checkDicesPaired(binding)
                 if (dicesPaired) {
+                    val selectedItem = spinner.selectedItem.toString()
+                    listOfModes.add(selectedItem)
+                    game.score = ScoreCalculator.calculateScore(selectedItem, listOfPairs)
+                    listOfResult.add(game.score)
+                    listOfPairs.clear()
+                    game.score = 0
                     resetDiceSaveState(game.greyDices)
                     listOfDices.clear()
-                    val selectedItem: Any = spinner.selectedItem.toString()
                     game.gameModes.remove(selectedItem)
                     updateSpinner(spinner, game.gameModes)
                     button.isEnabled=true

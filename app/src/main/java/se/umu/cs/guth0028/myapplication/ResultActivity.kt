@@ -53,13 +53,14 @@ class ResultActivity : AppCompatActivity() {
                 )
 
                 setTexts(gameModeTextViews, scoreTextViews, gameNameList, gameScoreList)
+
         }
 
     }
 
     private fun setTexts(gameModeTextViews: List<TextView>, scoreTextViews: List<TextView>, gameNameList: ArrayList<*>, gameScoreList: ArrayList<*>) {
         /*
-        Method for setting all textViews to the different gameModes and their respective score
+        Method that sets all textViews to the different gameModes and their respective score
         */
 
         var gameModeCounter = 0
@@ -74,6 +75,5 @@ class ResultActivity : AppCompatActivity() {
             textView.text=gameScoreList[scoreCounter].toString()
             scoreCounter = scoreCounter + 1
         }
-
     }
 }
