@@ -103,4 +103,15 @@
         app:layout_constraintTop_toTopOf="@+id/button"
         app:layout_constraintVertical_bias="0.25" />
 
+    <Button
+        android:id="@+id/submitPairsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/submitButton"
+        app:layout_constraintEnd_toEndOf="@+id/imageView7"
+        app:layout_constraintStart_toStartOf="@+id/imageView5"
+        app:layout_constraintTop_toBottomOf="@+id/imageView6"
+        tools:text="@string/pairButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

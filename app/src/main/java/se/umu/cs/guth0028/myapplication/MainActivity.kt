@@ -1,6 +1,7 @@
 package se.umu.cs.guth0028.myapplication
 
 import android.content.Intent
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -34,62 +35,74 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         initDiceOnClickListeners(binding)
 
-        binding.button.setOnClickListener {
-            if (game.round <= game.gameRounds){
-                button.text = "THROW"
-                submitButton.isEnabled = false
-                for (dice in game.greyDices) {
-                    if (!dice.isSaved) {
-                        dice.throwDice()
+
+            binding.button.setOnClickListener {
+                if (game.round <= game.gameRounds){
+                    binding.submitPairsButton.visibility = View.INVISIBLE
+                    button.text = "THROW"
+                    submitButton.isEnabled = false
+                    for (dice in game.greyDices) {
+                        if (!dice.isSaved) {
+                            dice.throwDice()
+                        }
+                        if (game.throws == (game.gameRoundThrows-1)) {
+                            listOfDices.add(dice)
+                        }
                     }
-                    if (game.throws == (game.gameRoundThrows-1)) {
-                        listOfDices.add(dice)
+
+                    setDiceImages(game.greyDices)
+
+                    game.throws = game.throws + 1
+
+                    if (game.throws == game.gameRoundThrows) {
+                        checkDicesPaired(binding)
+                        binding.submitPairsButton.visibility = View.VISIBLE
+                        binding.submitPairsButton.text = "Submit pair"
+                        button.isEnabled=false
+                        button.text = "New round"
+                        game.round = game.round + 1
+                        game.throws = 0
                     }
                 }
-
-                setDiceImages(game.greyDices)
-
-                game.throws = game.throws + 1
-
-                if (game.throws == game.gameRoundThrows) {
-                    checkDicesPaired(binding)
-                    button.isEnabled=false
-                    button.text = "New round"
+                else {
+                    button.isEnabled = false
+                    submitButton.text="CALCULATE SCORE"
                     submitButton.isEnabled = true
-                    game.round = game.round + 1
-                    game.throws = 0
                 }
             }
-            else {
-                button.isEnabled = false
-                submitButton.text="CALCULATE SCORE"
+
+        binding.submitPairsButton.setOnClickListener {
+            val selectedItem = spinner.selectedItem.toString()
+            for (pair in listOfPairs) {
+                Log.d("gustaf", "$pair")
+            }
+            game.score += ScoreCalculator.calculateScore(selectedItem, listOfPairs)
+            listOfPairs.clear()
+
+            checkDicesPaired(binding)
+
+            if (dicesPaired) {
                 submitButton.isEnabled = true
+                listOfResult.add(game.score)
+                game.score = 0
             }
         }
 
         submitButton.setOnClickListener {
-            if (game.round <= game.gameRounds) {
-                checkDicesPaired(binding)
-                if (dicesPaired) {
-                    val selectedItem = spinner.selectedItem.toString()
-                    listOfModes.add(selectedItem)
-                    game.score = ScoreCalculator.calculateScore(selectedItem, listOfPairs)
-                    listOfResult.add(game.score)
-                    listOfPairs.clear()
-                    game.score = 0
-                    resetDiceSaveState(game.greyDices)
-                    listOfDices.clear()
-                    game.gameModes.remove(selectedItem)
-                    updateSpinner(spinner, game.gameModes)
-                    button.isEnabled=true
-                    if(button.isEnabled){
-                        submitButton.isEnabled=false
-                    }
-                    resetDicesPaired()
-                    initDiceOnClickListeners(binding)
-                } else {
-                    Toast.makeText(this, "Du måste para ihop alla tärningar", Toast.LENGTH_SHORT).show()
+            if (game.round < game.gameRounds) {
+               val selectedItem = spinner.selectedItem.toString()
+                resetDiceSaveState(game.greyDices)
+                listOfModes.add(selectedItem)
+                listOfDices.clear()
+                game.gameModes.remove(selectedItem)
+                updateSpinner(spinner, game.gameModes)
+                button.isEnabled=true
+                if(button.isEnabled){
+                    submitButton.isEnabled=false
                 }
+                resetDicesPaired()
+                initDiceOnClickListeners(binding)
+
             } else {
                 val intent = Intent(this,ResultActivity::class.java)
                 intent.putExtra("GameName",listOfModes)

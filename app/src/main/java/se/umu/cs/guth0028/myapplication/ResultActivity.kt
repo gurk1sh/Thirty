@@ -20,10 +20,6 @@ class ResultActivity : AppCompatActivity() {
 
         var gameNameList= intent.getSerializableExtra("GameName") as ArrayList<*>
         var gameScoreList=intent.getSerializableExtra("GameScore") as ArrayList<*>
-        Log.d("Gustaf", "onCreate: ")
-
-
-
 
         binding.toastButton.setOnClickListener {
                val gameModeTextViews = listOf (
@@ -36,7 +32,7 @@ class ResultActivity : AppCompatActivity() {
                    binding.textView13,
                    binding.textView15,
                    binding.textView17,
-                   binding.textView19
+                   //binding.textView19
                )
 
                 val scoreTextViews = listOf (
@@ -49,10 +45,12 @@ class ResultActivity : AppCompatActivity() {
                     binding.textView14,
                     binding.textView16,
                     binding.textView18,
-                    binding.textView20
+                    //binding.textView20
                 )
 
                 setTexts(gameModeTextViews, scoreTextViews, gameNameList, gameScoreList)
+
+                binding.totalScore.text = calculateTotalScore(gameScoreList).toString()
 
         }
 
@@ -62,7 +60,6 @@ class ResultActivity : AppCompatActivity() {
         /*
         Method that sets all textViews to the different gameModes and their respective score
         */
-
         var gameModeCounter = 0
         var scoreCounter = 0
 
@@ -75,5 +72,13 @@ class ResultActivity : AppCompatActivity() {
             textView.text=gameScoreList[scoreCounter].toString()
             scoreCounter = scoreCounter + 1
         }
+    }
+
+    private fun calculateTotalScore(gameScoreList: ArrayList<*>) : Int {
+        var totalScore = 0
+        for (score in gameScoreList) {
+           totalScore += score as Int
+        }
+        return totalScore
     }
 }
