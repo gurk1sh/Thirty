@@ -32,7 +32,7 @@ class ResultActivity : AppCompatActivity() {
                    binding.textView13,
                    binding.textView15,
                    binding.textView17,
-                   //binding.textView19
+                   binding.textView19
                )
 
                 val scoreTextViews = listOf (
@@ -45,7 +45,7 @@ class ResultActivity : AppCompatActivity() {
                     binding.textView14,
                     binding.textView16,
                     binding.textView18,
-                    //binding.textView20
+                    binding.textView20
                 )
 
                 setTexts(gameModeTextViews, scoreTextViews, gameNameList, gameScoreList)

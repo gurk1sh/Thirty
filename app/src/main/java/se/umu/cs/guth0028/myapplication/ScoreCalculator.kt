@@ -3,12 +3,19 @@ package se.umu.cs.guth0028.myapplication
 class ScoreCalculator {
     companion object {
         fun calculateScore (selectedItem: String, listOfPairs: MutableList<Int>) : Int {
+
+            /*
+            This class takes a list of "pairs" consisting of 1-6 different values, for example 1,3,4
+            Then it calculates the score based on a gamemode, (gamemode 8 with values 1,3,4 will result in score = 8).
+            A gameround can lead to this class being used more than once because the user can submit a maximum of 6 different "pairs" (one for each dice)
+            */
+
             var sum = 0
             var score = 0
 
             when (selectedItem) {
                "low" -> for (pair in listOfPairs) {
-                   if (pair < 3) {
+                   if (pair <= 3) {
                        score = score + pair
                    }
                }
