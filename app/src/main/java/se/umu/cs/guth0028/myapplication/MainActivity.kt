@@ -10,9 +10,23 @@ import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 import se.umu.cs.guth0028.myapplication.databinding.ActivityMainBinding
 
+private const val GAME_ROUND = "game_round"
+private const val GAME_THROWS = "game_throws"
+private const val GAME_MODES = "game_modes"
+private const val REMAINING_MODES = "remaining_modes"
+private const val SCORES = "scores"
+private const val DICES = "dices"
+private const val THROW_BUTTON = "throwbutton"
+private const val SUBMIT_BUTTON = "submitbutton"
+private const val PAIR_BUTTON = "pairbutton"
+
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private val game = Game()
+
+    var gameRound = game.round
+    var gameThrows = game.throws
+    var gameScore = game.score
 
     private var listOfModes = arrayListOf<String>()
 
@@ -27,6 +41,20 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (savedInstanceState != null) {
+            gameRound = savedInstanceState.getInt(GAME_ROUND)
+            gameThrows = savedInstanceState.getInt(GAME_THROWS)
+            Log.d("Gustaf", "${gameThrows}")
+            listOfModes = savedInstanceState.getSerializable(REMAINING_MODES) as ArrayList<String>
+            listOfResult = savedInstanceState.getSerializable(SCORES) as ArrayList<Int>
+            game.gameModes = savedInstanceState.getSerializable(GAME_MODES) as ArrayList<String>
+            button.isEnabled = savedInstanceState.getBoolean(THROW_BUTTON)
+            submitButton.isEnabled = savedInstanceState.getBoolean(SUBMIT_BUTTON)
+            submitPairsButton.visibility = savedInstanceState.getInt(PAIR_BUTTON)
+        }
+
+        binding.submitPairsButton.text = "Submit pair"
+
         binding.spinner.onItemSelectedListener = this
 
         updateSpinner(spinner, game.gameModes) //Update spinner with game modes
@@ -34,7 +62,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         initDiceOnClickListeners(binding)
 
         binding.button.setOnClickListener { //Logic for every throw
-            if (game.round < game.gameRounds) {
+            if (gameRound < game.gameRounds) {
                 binding.submitPairsButton.visibility = View.INVISIBLE //Hide pair button
                 button.text = "THROW"
                 submitButton.isEnabled = false
@@ -46,16 +74,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
                 setDiceImages(game.greyDices)
 
-                game.throws = game.throws + 1
+                gameThrows = gameThrows + 1
 
-                if (game.throws == game.gameRoundThrows) { //Logic for when a round is on the last throw
+                if (gameThrows == game.gameRoundThrows) { //Logic for when a round is on the last throw
                     checkDicesPaired(binding)
                     binding.submitPairsButton.visibility = View.VISIBLE
-                    binding.submitPairsButton.text = "Submit pair"
                     binding.button.isEnabled=false
                     binding.button.text = "New round"
-                    game.round = game.round + 1
-                    game.throws = 0
+                    gameRound = gameRound + 1
+                    gameThrows = 0
                 }
             }
         }
@@ -63,27 +90,26 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         binding.submitPairsButton.setOnClickListener { //Logic for the pairing of dice
             val selectedItem = spinner.selectedItem.toString()
             if (listOfPairs.size != 0) {
-                game.score += ScoreCalculator.calculateScore(selectedItem, listOfPairs) //calculate score based on what's currently paired and which game mode is selected
+                gameScore += ScoreCalculator.calculateScore(selectedItem, listOfPairs) //calculate score based on what's currently paired and which game mode is selected
                 listOfPairs.clear() //clear the paired list so it can be reused for next pair
             } else {
                 Toast.makeText(this, "You haven't paired anything!", Toast.LENGTH_SHORT).show()
             }
 
-
-            checkDicesPaired(binding) //checks whether all of the dices are paired
+            checkDicesPaired(binding) //checks whether all of the dices are paired and modifies imageview onclick listeners
 
             if (dicesPaired) { //if ALL dices are paired
                 submitButton.isEnabled = true
-                listOfResult.add(game.score)
+                listOfResult.add(gameScore)
                 listOfModes.add(selectedItem)
-                game.score = 0 //reset score for next round
+                gameScore = 0 //reset score for next round
             } else {
 
             }
         }
 
         submitButton.setOnClickListener { //Logic for submitting the round
-            if (game.round < game.gameRounds) {
+            if (gameRound < game.gameRounds) {
                 val selectedItem = spinner.selectedItem.toString()
                 resetDiceSaveState(game.greyDices) //reset all dice that was saved
                 game.gameModes.remove(selectedItem) //remove gamemode and update spinner
@@ -96,12 +122,25 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 initDiceOnClickListeners(binding) //changes the dice on click listeners back to only checking for saving dice between rounds
 
             } else { //Create and start a new activity and pass over the gamemodes and results as extras
-                val intent = Intent(this,ResultActivity::class.java)
+                val intent = Intent(this,RecyclerResultActivity::class.java)
                 intent.putExtra("GameName",listOfModes)
                 intent.putExtra("GameScore",listOfResult)
                 startActivity(intent)
             }
         }
+    }
+
+    override fun onSaveInstanceState(savedInstanceState: Bundle) { //Save the game state
+        super.onSaveInstanceState(savedInstanceState)
+        savedInstanceState.putInt(GAME_ROUND, gameRound)
+        savedInstanceState.putInt(GAME_THROWS, gameThrows)
+        savedInstanceState.putSerializable(REMAINING_MODES, listOfModes)
+        savedInstanceState.putSerializable(SCORES, listOfResult)
+        savedInstanceState.putSerializable(GAME_MODES, game.gameModes as ArrayList<String>)
+        savedInstanceState.putBoolean(THROW_BUTTON, button.isEnabled)
+        savedInstanceState.putBoolean(SUBMIT_BUTTON, submitButton.isEnabled)
+        savedInstanceState.putInt(PAIR_BUTTON, submitPairsButton.visibility)
+        savedInstanceState.putSerializable(DICES, game.greyDices)
     }
 
     private fun setDiceImages(listOfDice: List<Dice>) {
@@ -136,27 +175,39 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private fun initDiceOnClickListeners(binding: ActivityMainBinding) {
         binding.imageView2.setOnClickListener {
-            game.greyDices[0].isSaved = !game.greyDices[0].isSaved
+            if (gameThrows >= 1) { //Shouldn't be able to save a dice unless one round is played
+                game.greyDices[0].isSaved = !game.greyDices[0].isSaved
+            }
         }
 
         binding.imageView3.setOnClickListener {
-            game.greyDices[1].isSaved = !game.greyDices[1].isSaved
+            if (gameThrows >= 1) {
+                game.greyDices[1].isSaved = !game.greyDices[1].isSaved
+            }
         }
 
         binding.imageView4.setOnClickListener {
-            game.greyDices[2].isSaved = !game.greyDices[2].isSaved
+            if (gameThrows >= 1) {
+                game.greyDices[2].isSaved = !game.greyDices[2].isSaved
+            }
         }
 
         binding.imageView5.setOnClickListener {
-            game.greyDices[3].isSaved = !game.greyDices[3].isSaved
+            if (gameThrows >= 1) {
+                game.greyDices[3].isSaved = !game.greyDices[3].isSaved
+            }
         }
 
         binding.imageView6.setOnClickListener {
-            game.greyDices[4].isSaved = !game.greyDices[4].isSaved
+            if (gameThrows >= 1) {
+                game.greyDices[4].isSaved = !game.greyDices[4].isSaved
+            }
         }
 
         binding.imageView7.setOnClickListener {
-            game.greyDices[5].isSaved = !game.greyDices[5].isSaved
+            if (gameThrows >= 1) {
+                game.greyDices[5].isSaved = !game.greyDices[5].isSaved
+            }
         }
     }
 
@@ -253,11 +304,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) { //Show the user a short message what gamemode is selected
-        if (parent != null) {
-            Toast.makeText(parent.getContext(),
-                "Gamemode : " + parent.getItemAtPosition(position).toString(),
-                Toast.LENGTH_SHORT).show()
-        }
+
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {

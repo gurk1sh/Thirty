@@ -21,7 +21,7 @@ class Game {
 
     val gameRounds = gameModes.size //game consists of a round for each gamemode
 
-    val greyDices = listOf(
+    var greyDices = arrayListOf(
         Dice(1, false, false,R.drawable.grey1),
         Dice(2, false, false,R.drawable.grey2),
         Dice(3, false, false,R.drawable.grey3),
@@ -30,7 +30,7 @@ class Game {
         Dice(6, false, false,R.drawable.grey6),
     )
 
-    val redDices = listOf(
+    var redDices = arrayListOf(
         Dice(1, false, false,R.drawable.red1),
         Dice(2, false, false,R.drawable.red2),
         Dice(3, false, false,R.drawable.red3),

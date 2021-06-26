@@ -13,6 +13,9 @@ import se.umu.cs.guth0028.myapplication.databinding.ActivityResultBinding
 private const val GAME_RESULT_LIST = "se.umu.cs.guth0028.geoquiz.game_result_list"
 
 class ResultActivity : AppCompatActivity() {
+
+    /*Old result activity, not used*/
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityResultBinding.inflate(layoutInflater)
