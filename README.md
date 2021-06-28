@@ -11,16 +11,16 @@ the player gets to choose gamemode and what pairs should be submitted.
 
 GAMEMODES
 ---------------------------------------------------------------------------------------
-Low	Every dice with a value of 3 or less gives points equal to its value
-4	Each combination of one or more dice with a sum of 4 gives points equal to its value
-5	Each combination of one or more dice with a sum of 5 gives points equal to its value
-6	Each combination of one or more dice with a sum of 6 gives points equal to its value
-7	Each combination of one or more dice with a sum of 7 gives points equal to its value
-8	Each combination of one or more dice with a sum of 8 gives points equal to its value
-9	Each combination of one or more dice with a sum of 9 gives points equal to its value
-10	Each combination of one or more dice with a sum of 10 gives points equal to its value
-11	Each combination of one or more dice with a sum of 11 gives points equal to its value
-12	Each combination of one or more dice with a sum of 12 gives points equal to its value
+- Low	Every dice with a value of 3 or less gives points equal to its value
+- 4	Each combination of one or more dice with a sum of 4 gives points equal to its value
+- 5	Each combination of one or more dice with a sum of 5 gives points equal to its value
+- 6	Each combination of one or more dice with a sum of 6 gives points equal to its value
+- 7	Each combination of one or more dice with a sum of 7 gives points equal to its value
+- 8	Each combination of one or more dice with a sum of 8 gives points equal to its value
+- 9	Each combination of one or more dice with a sum of 9 gives points equal to its value
+- 10	Each combination of one or more dice with a sum of 10 gives points equal to its value
+- 11	Each combination of one or more dice with a sum of 11 gives points equal to its value
+- 12	Each combination of one or more dice with a sum of 12 gives points equal to its value
 
 HOW TO PLAY
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
