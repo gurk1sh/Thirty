@@ -1,20 +1,15 @@
 package se.umu.cs.guth0028.myapplication
 
 import android.content.Intent
-import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.activity_main.*
 import se.umu.cs.guth0028.myapplication.databinding.ActivityMainBinding
 
-private const val GAME_ROUND = "game_round"
 private const val GAME_THROWS = "game_throws"
-private const val GAME_MODES = "game_modes"
-private const val REMAINING_MODES = "remaining_modes"
-private const val SCORES = "scores"
 private const val DICES = "dices"
 private const val THROW_BUTTON = "throwbutton"
 private const val SUBMIT_BUTTON = "submitbutton"
@@ -22,125 +17,108 @@ private const val PAIR_BUTTON = "pairbutton"
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
-    private val game = Game()
-
-    var gameRound = game.round
-    var gameThrows = game.throws
-    var gameScore = game.score
-
-    private var listOfModes = arrayListOf<String>()
-
-    private var listOfResult = arrayListOf<Int>()
-
-    private var listOfPairs = mutableListOf<Int>()
-
-    private var dicesPaired: Boolean = false
+    private val gameViewModel: GameViewModel by lazy { //Load viewmodel
+        ViewModelProvider(this).get(GameViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (savedInstanceState != null) {
-            gameRound = savedInstanceState.getInt(GAME_ROUND)
-            gameThrows = savedInstanceState.getInt(GAME_THROWS)
-            Log.d("Gustaf", "${gameThrows}")
-            listOfModes = savedInstanceState.getSerializable(REMAINING_MODES) as ArrayList<String>
-            listOfResult = savedInstanceState.getSerializable(SCORES) as ArrayList<Int>
-            game.gameModes = savedInstanceState.getSerializable(GAME_MODES) as ArrayList<String>
+        if (savedInstanceState != null) { //Picks up game state as well as buttons state
+            gameViewModel.greyDices = savedInstanceState.getSerializable(DICES) as ArrayList<Dice>
+            gameViewModel.throws = savedInstanceState.getInt(GAME_THROWS)
             button.isEnabled = savedInstanceState.getBoolean(THROW_BUTTON)
             submitButton.isEnabled = savedInstanceState.getBoolean(SUBMIT_BUTTON)
             submitPairsButton.visibility = savedInstanceState.getInt(PAIR_BUTTON)
+            if (gameViewModel.throws >= 1) { //refreshes UI if the game has started, it will set the images to dices 1-6 if not
+                setDiceImages(gameViewModel.greyDices)
+            }
         }
 
         binding.submitPairsButton.text = "Submit pair"
 
         binding.spinner.onItemSelectedListener = this
 
-        updateSpinner(spinner, game.gameModes) //Update spinner with game modes
+        updateSpinner(spinner, gameViewModel.gameModes) //Update spinner with game modes
 
         initDiceOnClickListeners(binding)
 
         binding.button.setOnClickListener { //Logic for every throw
-            if (gameRound < game.gameRounds) {
+            if (gameViewModel.round < gameViewModel.gameRounds) {
                 binding.submitPairsButton.visibility = View.INVISIBLE //Hide pair button
                 button.text = "THROW"
                 submitButton.isEnabled = false
-                for (dice in game.greyDices) { //Check for saved dices, if not, reroll it's value and update the drawable ID
+                for (dice in gameViewModel.greyDices) { //Check if dice is saved, if not, reroll it's value and update the drawable ID
                     if (!dice.isSaved) {
                         dice.throwDice()
                     }
                 }
 
-                setDiceImages(game.greyDices)
+                setDiceImages(gameViewModel.greyDices)
 
-                gameThrows = gameThrows + 1
+                gameViewModel.throws = gameViewModel.throws + 1
 
-                if (gameThrows == game.gameRoundThrows) { //Logic for when a round is on the last throw
+                if (gameViewModel.throws == gameViewModel.gameRoundThrows) { //Logic for when a round is on the last throw
                     checkDicesPaired(binding)
                     binding.submitPairsButton.visibility = View.VISIBLE
                     binding.button.isEnabled=false
                     binding.button.text = "New round"
-                    gameRound = gameRound + 1
-                    gameThrows = 0
+                    gameViewModel.round = gameViewModel.round + 1
                 }
             }
         }
 
         binding.submitPairsButton.setOnClickListener { //Logic for the pairing of dice
             val selectedItem = spinner.selectedItem.toString()
-            if (listOfPairs.size != 0) {
-                gameScore += ScoreCalculator.calculateScore(selectedItem, listOfPairs) //calculate score based on what's currently paired and which game mode is selected
-                listOfPairs.clear() //clear the paired list so it can be reused for next pair
+            if (gameViewModel.listOfPairs.size != 0) {
+                gameViewModel.score += ScoreCalculator.calculateScore(selectedItem, gameViewModel.listOfPairs) //calculate score based on what's currently paired and which game mode is selected
+                gameViewModel.listOfPairs.clear() //clear the paired list so it can be reused for next pair
             } else {
                 Toast.makeText(this, "You haven't paired anything!", Toast.LENGTH_SHORT).show()
             }
 
             checkDicesPaired(binding) //checks whether all of the dices are paired and modifies imageview onclick listeners
 
-            if (dicesPaired) { //if ALL dices are paired
+            if (gameViewModel.dicesPaired) { //if ALL dices are paired
                 submitButton.isEnabled = true
-                listOfResult.add(gameScore)
-                listOfModes.add(selectedItem)
-                gameScore = 0 //reset score for next round
-            } else {
-
+                gameViewModel.listOfResult.add(gameViewModel.score)
+                gameViewModel.listOfModes.add(selectedItem)
+                gameViewModel.score = 0 //reset score for next round
             }
         }
 
         submitButton.setOnClickListener { //Logic for submitting the round
-            if (gameRound < game.gameRounds) {
+            if (gameViewModel.round < gameViewModel.gameRounds) {
                 val selectedItem = spinner.selectedItem.toString()
-                resetDiceSaveState(game.greyDices) //reset all dice that was saved
-                game.gameModes.remove(selectedItem) //remove gamemode and update spinner
-                updateSpinner(spinner, game.gameModes)
+                resetDiceSaveState(gameViewModel.greyDices) //reset all dice that was saved
+                gameViewModel.gameModes.remove(selectedItem) //remove gamemode from list
+                updateSpinner(spinner, gameViewModel.gameModes)
                 binding.button.isEnabled=true
-                if(binding.button.isEnabled) {
+                if(binding.button.isEnabled) { //If throw button is enabled, disable submit button
                     submitButton.isEnabled=false
                 }
-                resetDicesPaired() //resets all pairing of dices
-                initDiceOnClickListeners(binding) //changes the dice on click listeners back to only checking for saving dice between rounds
+                gameViewModel.throws = 0 //reset throws
+                resetDicesPaired()
+                initDiceOnClickListeners(binding)
 
-            } else { //Create and start a new activity and pass over the gamemodes and results as extras
+            } else { //Create, start a new activity and pass over the gamemode list and result list as extras
                 val intent = Intent(this,RecyclerResultActivity::class.java)
-                intent.putExtra("GameName",listOfModes)
-                intent.putExtra("GameScore",listOfResult)
+                intent.putExtra("GameName", gameViewModel.listOfModes)
+                intent.putExtra("GameScore",gameViewModel.listOfResult)
                 startActivity(intent)
             }
         }
     }
 
-    override fun onSaveInstanceState(savedInstanceState: Bundle) { //Save the game state
+    override fun onSaveInstanceState(savedInstanceState: Bundle) { //Saves the game state
         super.onSaveInstanceState(savedInstanceState)
-        savedInstanceState.putInt(GAME_ROUND, gameRound)
-        savedInstanceState.putInt(GAME_THROWS, gameThrows)
-        savedInstanceState.putSerializable(REMAINING_MODES, listOfModes)
-        savedInstanceState.putSerializable(SCORES, listOfResult)
-        savedInstanceState.putSerializable(GAME_MODES, game.gameModes as ArrayList<String>)
+        savedInstanceState.putSerializable(DICES, gameViewModel.greyDices)
+        savedInstanceState.putInt(GAME_THROWS, gameViewModel.throws)
         savedInstanceState.putBoolean(THROW_BUTTON, button.isEnabled)
         savedInstanceState.putBoolean(SUBMIT_BUTTON, submitButton.isEnabled)
         savedInstanceState.putInt(PAIR_BUTTON, submitPairsButton.visibility)
-        savedInstanceState.putSerializable(DICES, game.greyDices)
     }
 
     private fun setDiceImages(listOfDice: List<Dice>) {
@@ -161,52 +139,52 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     }
 
-    private fun updateSpinner(spinner: Spinner, gameModeList: List<String>) {
+    private fun updateSpinner(spinner: Spinner, gameModeList: List<String>) { //Updates content in the spinner
        val arrayAdapter = ArrayAdapter(this,android.R.layout.simple_spinner_item, gameModeList)
        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
        spinner.adapter = arrayAdapter
     }
 
-    private fun resetDiceSaveState(diceList: List<Dice>) {
+    private fun resetDiceSaveState(diceList: List<Dice>) { //Resets state for all saved dices
         for (dice in diceList) {
             dice.isSaved = false
         }
     }
 
-    private fun initDiceOnClickListeners(binding: ActivityMainBinding) {
+    private fun initDiceOnClickListeners(binding: ActivityMainBinding) {//Initiates the listeners for the dice imageview that then saves dice on click
         binding.imageView2.setOnClickListener {
-            if (gameThrows >= 1) { //Shouldn't be able to save a dice unless one round is played
-                game.greyDices[0].isSaved = !game.greyDices[0].isSaved
+            if (gameViewModel.throws >= 1) { //Shouldn't be able to save a dice unless one round is played
+                gameViewModel.greyDices[0].isSaved = !gameViewModel.greyDices[0].isSaved
             }
         }
 
         binding.imageView3.setOnClickListener {
-            if (gameThrows >= 1) {
-                game.greyDices[1].isSaved = !game.greyDices[1].isSaved
+            if (gameViewModel.throws >= 1) {
+                gameViewModel.greyDices[1].isSaved = !gameViewModel.greyDices[1].isSaved
             }
         }
 
         binding.imageView4.setOnClickListener {
-            if (gameThrows >= 1) {
-                game.greyDices[2].isSaved = !game.greyDices[2].isSaved
+            if (gameViewModel.throws >= 1) {
+                gameViewModel.greyDices[2].isSaved = !gameViewModel.greyDices[2].isSaved
             }
         }
 
         binding.imageView5.setOnClickListener {
-            if (gameThrows >= 1) {
-                game.greyDices[3].isSaved = !game.greyDices[3].isSaved
+            if (gameViewModel.throws >= 1) {
+                gameViewModel.greyDices[3].isSaved = !gameViewModel.greyDices[3].isSaved
             }
         }
 
         binding.imageView6.setOnClickListener {
-            if (gameThrows >= 1) {
-                game.greyDices[4].isSaved = !game.greyDices[4].isSaved
+            if (gameViewModel.throws >= 1) {
+                gameViewModel.greyDices[4].isSaved = !gameViewModel.greyDices[4].isSaved
             }
         }
 
         binding.imageView7.setOnClickListener {
-            if (gameThrows >= 1) {
-                game.greyDices[5].isSaved = !game.greyDices[5].isSaved
+            if (gameViewModel.throws >= 1) {
+                gameViewModel.greyDices[5].isSaved = !gameViewModel.greyDices[5].isSaved
             }
         }
     }
@@ -217,72 +195,72 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         */
 
         binding.imageView2.setOnClickListener {
-            if (!game.greyDices[0].isPaired) {
-                game.greyDices[0].drawableId = game.redDices[game.greyDices[0].value-1].drawableId
-                imageView2.setImageResource(game.greyDices[0].drawableId)
-                game.greyDices[0].isPaired = true
-                listOfPairs.add(game.greyDices[0].value)
+            if (!gameViewModel.greyDices[0].isPaired) {
+                gameViewModel.greyDices[0].drawableId = gameViewModel.redDices[gameViewModel.greyDices[0].value-1].drawableId
+                imageView2.setImageResource(gameViewModel.greyDices[0].drawableId)
+                gameViewModel.greyDices[0].isPaired = true
+                gameViewModel.listOfPairs.add(gameViewModel.greyDices[0].value)
             } else {
                 Toast.makeText(this, "You can't pair this dice again!", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.imageView3.setOnClickListener {
-            if (!game.greyDices[1].isPaired) {
-                game.greyDices[1].drawableId = game.redDices[game.greyDices[1].value-1].drawableId
-                imageView3.setImageResource(game.greyDices[1].drawableId)
-                game.greyDices[1].isPaired = true
-                listOfPairs.add(game.greyDices[1].value)
+            if (!gameViewModel.greyDices[1].isPaired) {
+                gameViewModel.greyDices[1].drawableId = gameViewModel.redDices[gameViewModel.greyDices[1].value-1].drawableId
+                imageView3.setImageResource(gameViewModel.greyDices[1].drawableId)
+                gameViewModel.greyDices[1].isPaired = true
+                gameViewModel.listOfPairs.add(gameViewModel.greyDices[1].value)
             } else {
                 Toast.makeText(this, "You can't pair this dice again!", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.imageView4.setOnClickListener {
-            if (!game.greyDices[2].isPaired) {
-                game.greyDices[2].drawableId = game.redDices[game.greyDices[2].value - 1].drawableId
-                imageView4.setImageResource(game.greyDices[2].drawableId)
-                game.greyDices[2].isPaired = true
-                listOfPairs.add(game.greyDices[2].value)
+            if (!gameViewModel.greyDices[2].isPaired) {
+                gameViewModel.greyDices[2].drawableId = gameViewModel.redDices[gameViewModel.greyDices[2].value-1].drawableId
+                imageView4.setImageResource(gameViewModel.greyDices[2].drawableId)
+                gameViewModel.greyDices[2].isPaired = true
+                gameViewModel.listOfPairs.add(gameViewModel.greyDices[2].value)
             } else {
                 Toast.makeText(this, "You can't pair this dice again!", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.imageView5.setOnClickListener {
-            if (!game.greyDices[3].isPaired) {
-                game.greyDices[3].drawableId = game.redDices[game.greyDices[3].value - 1].drawableId
-                imageView5.setImageResource(game.greyDices[3].drawableId)
-                game.greyDices[3].isPaired = true
-                listOfPairs.add(game.greyDices[3].value)
+            if (!gameViewModel.greyDices[3].isPaired) {
+                gameViewModel.greyDices[3].drawableId = gameViewModel.redDices[gameViewModel.greyDices[3].value-1].drawableId
+                imageView5.setImageResource(gameViewModel.greyDices[3].drawableId)
+                gameViewModel.greyDices[3].isPaired = true
+                gameViewModel.listOfPairs.add(gameViewModel.greyDices[3].value)
             } else {
                 Toast.makeText(this, "You can't pair this dice again!", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.imageView6.setOnClickListener {
-            if (!game.greyDices[4].isPaired) {
-                game.greyDices[4].drawableId = game.redDices[game.greyDices[4].value - 1].drawableId
-                imageView6.setImageResource(game.greyDices[4].drawableId)
-                game.greyDices[4].isPaired = true
-                listOfPairs.add(game.greyDices[4].value)
+            if (!gameViewModel.greyDices[4].isPaired) {
+                gameViewModel.greyDices[4].drawableId = gameViewModel.redDices[gameViewModel.greyDices[4].value-1].drawableId
+                imageView6.setImageResource(gameViewModel.greyDices[4].drawableId)
+                gameViewModel.greyDices[4].isPaired = true
+                gameViewModel.listOfPairs.add(gameViewModel.greyDices[4].value)
             } else {
                 Toast.makeText(this, "You can't pair this dice again!", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.imageView7.setOnClickListener {
-            if (!game.greyDices[5].isPaired) {
-                game.greyDices[5].drawableId = game.redDices[game.greyDices[5].value - 1].drawableId
-                imageView7.setImageResource(game.greyDices[5].drawableId)
-                game.greyDices[5].isPaired = true
-                listOfPairs.add(game.greyDices[5].value)
+            if (!gameViewModel.greyDices[5].isPaired) {
+                gameViewModel.greyDices[5].drawableId = gameViewModel.redDices[gameViewModel.greyDices[5].value-1].drawableId
+                imageView7.setImageResource(gameViewModel.greyDices[5].drawableId)
+                gameViewModel.greyDices[5].isPaired = true
+                gameViewModel.listOfPairs.add(gameViewModel.greyDices[5].value)
             } else {
                 Toast.makeText(this, "You can't pair this dice again!", Toast.LENGTH_SHORT).show()
             }
         }
 
-        for (dice in game.greyDices) { //Check for ALL of the dice and if they are paired
+        for (dice in gameViewModel.greyDices) { //Check for ALL of the dice and if they are paired
             if (!dice.isPaired) {
                 return false
             }
@@ -290,20 +268,20 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return true
     }
 
-    private fun resetDicesPaired() {
-        for (dice in game.greyDices) {
+    private fun resetDicesPaired() { //Resets state for all paired dices
+        for (dice in gameViewModel.greyDices) {
             if (dice.isPaired) {
                 dice.isPaired = false
             }
-            dicesPaired = false
+            gameViewModel.dicesPaired = false
         }
     }
 
-    private fun checkDicesPaired(binding: ActivityMainBinding) {
-        dicesPaired = modifyDiceOnClickListeners(binding)
+    private fun checkDicesPaired(binding: ActivityMainBinding) { //Checks if all the dices are paired
+        gameViewModel.dicesPaired = modifyDiceOnClickListeners(binding)
     }
 
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) { //Show the user a short message what gamemode is selected
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
 
     }
 

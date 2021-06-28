@@ -1,6 +1,13 @@
 package se.umu.cs.guth0028.myapplication
 
-class Game {
+import androidx.lifecycle.ViewModel
+
+class GameViewModel : ViewModel() {
+
+    var listOfModes = arrayListOf<String>()
+    var listOfResult = arrayListOf<Int>()
+    var listOfPairs = mutableListOf<Int>()
+    var dicesPaired: Boolean = false
     var round = 0
     var throws = 0
     var score = 0
@@ -39,4 +46,3 @@ class Game {
         Dice(6, false, false,R.drawable.red6),
     )
 }
-

@@ -4,5 +4,6 @@
     <string name="button">THROW</string>
     <string name="submit">SUBMIT</string>
     <string name="make_toast">MAKE A TOAST!</string>
-    <string name="pairButton">Start pairing!</string>
+    <string name="pairButton">Submit pair</string>
+    <string name="mainLabel">Thirty</string>
 </resources>
