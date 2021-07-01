@@ -6,4 +6,6 @@
     <string name="make_toast">MAKE A TOAST!</string>
     <string name="pairButton">Submit pair</string>
     <string name="mainLabel">Thirty</string>
+    <string name="play_again">Play again</string>
+    <string name="current_score">Current score for this round:</string>
 </resources>

@@ -11,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="1dp"
-        android:layout_marginTop="24dp"
         android:layout_marginEnd="1dp"
         app:layout_constraintBottom_toTopOf="@+id/totalScoreTextView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,11 +20,22 @@
     <TextView
         android:id="@+id/totalScoreTextView"
         android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:autoSizeMaxTextSize="40dp"
-        android:autoSizeTextType="uniform"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/playAgainButton"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:text="@string/play_again"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/totalScoreTextView"
+        app:layout_constraintStart_toStartOf="@+id/totalScoreTextView"
+        app:layout_constraintTop_toBottomOf="@+id/totalScoreTextView"
+        app:layout_constraintVertical_bias="0.75" />
 </androidx.constraintlayout.widget.ConstraintLayout>

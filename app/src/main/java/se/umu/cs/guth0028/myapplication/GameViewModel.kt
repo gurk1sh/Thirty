@@ -6,7 +6,7 @@ class GameViewModel : ViewModel() {
 
     var listOfModes = arrayListOf<String>()
     var listOfResult = arrayListOf<Int>()
-    var listOfPairs = mutableListOf<Int>()
+    var listOfPairs = mutableListOf<Dice>()
     var dicesPaired: Boolean = false
     var round = 0
     var throws = 0
@@ -27,6 +27,15 @@ class GameViewModel : ViewModel() {
     )
 
     val gameRounds = gameModes.size //game consists of a round for each gamemode
+
+    var whiteDices = arrayListOf(
+        Dice(1, false, false, R.drawable.white1),
+        Dice(2, false, false, R.drawable.white2),
+        Dice(3, false, false, R.drawable.white3),
+        Dice(4, false, false, R.drawable.white4),
+        Dice(5, false, false, R.drawable.white5),
+        Dice(6, false, false, R.drawable.white6),
+    )
 
     var greyDices = arrayListOf(
         Dice(1, false, false,R.drawable.grey1),
