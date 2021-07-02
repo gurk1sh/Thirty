@@ -423,14 +423,33 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 gameViewModel.listOfResult.add(gameViewModel.score)
                 gameViewModel.listOfModes.add(selectedItem)
                 gameViewModel.score = 0 //reset score for next round
-
             }
         }
     }
 
     private fun initSubmitButtonListener(binding: ActivityMainBinding) {
         submitButton.setOnClickListener { //Logic for submitting the round
+            if (gameViewModel.round < gameViewModel.gameRounds) {
+                currentScore.text = "Current score for this round: "
+                val selectedItem = spinner.selectedItem.toString()
+                resetDiceSaveState(gameViewModel.whiteDices) //reset all dice that was saved
+                gameViewModel.gameModes.remove(selectedItem) //remove gamemode from list
+                updateSpinner(spinner, gameViewModel.gameModes)
+                binding.button.isEnabled=true
+                if(binding.button.isEnabled) { //If throw button is enabled, disable submit button
+                    submitButton.isEnabled=false
+                }
+                gameViewModel.throws = 0 //reset throws
+                resetDicesPaired()
+                resetDicesLockedIn()
+                initDiceOnClickListeners(binding)
 
+            } else { //Create, start a new activity and pass over the gamemode list and result list as extras
+                val intent = Intent(this,RecyclerResultActivity::class.java)
+                intent.putExtra("GameName", gameViewModel.listOfModes)
+                intent.putExtra("GameScore",gameViewModel.listOfResult)
+                startActivity(intent)
+            }
         }
     }
 
