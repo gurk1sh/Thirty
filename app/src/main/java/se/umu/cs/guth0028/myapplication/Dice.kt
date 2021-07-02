@@ -4,8 +4,7 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-class Dice (var value: Int, var isSaved: Boolean, var isPaired: Boolean, var drawableId: Int) : Parcelable {
-    var isLockedIn: Boolean = false
+class Dice (var value: Int, var isSaved: Boolean, var isPaired: Boolean, var drawableId: Int, var isLockedIn: Boolean) : Parcelable {
     fun throwDice () {
         this.value = (1..6).random() //generate a new random value from 1 to 6
         when (this.value) { //change the dice image ID to the one that equals it's new value

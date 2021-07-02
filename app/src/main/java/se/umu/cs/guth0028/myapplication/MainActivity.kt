@@ -19,7 +19,6 @@ private const val DICES = "dices"
 private const val PAIRS = "pairs"
 private const val RESULTS = "results"
 private const val THROW_BUTTON = "throwbutton"
-private const val SUBMIT_BUTTON = "submitbutton"
 private const val PAIR_BUTTON = "pairbutton"
 private const val IS_PAIRING = "is_pairing"
 
@@ -42,6 +41,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         updateSpinner(spinner, gameViewModel.gameModes) //Update spinner with game modes
 
+        Log.d("gustaf", "${gameViewModel.throws}")
         if (isPairing) {
             checkDicesPaired(binding)
         } else {
@@ -51,8 +51,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         initThrowButtonListener(binding)
 
         initSubmitPairsButtonListener(binding)
-
-        initSubmitButtonListener(binding)
 
     }
 
@@ -68,7 +66,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         savedInstanceState.putInt(GAME_SCORE, gameViewModel.score)
         savedInstanceState.putInt(PAIR_BUTTON, submitPairsButton.visibility)
         savedInstanceState.putBoolean(THROW_BUTTON, button.isEnabled)
-        savedInstanceState.putBoolean(SUBMIT_BUTTON, submitButton.isEnabled)
         savedInstanceState.putBoolean(IS_PAIRING, isPairing)
     }
 
@@ -85,13 +82,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         updateSpinner(spinner, gameViewModel.gameModes)
         currentScore.text = "Current score for this round: ${gameViewModel.score}"
         button.isEnabled = savedInstanceState.getBoolean(THROW_BUTTON)
-        submitButton.isEnabled = savedInstanceState.getBoolean(SUBMIT_BUTTON)
         submitPairsButton.visibility = savedInstanceState.getInt(PAIR_BUTTON)
         isPairing = savedInstanceState.getBoolean(IS_PAIRING)
         if (gameViewModel.throws >= 1) { //refreshes UI if the game has started, it will set the images to dices 1-6 if not
             setDiceImages(gameViewModel.whiteDices)
-            refreshSavedDiceImages(gameViewModel.whiteDices)
-            refreshPairedDiceImages(gameViewModel.whiteDices)
+            refreshSavedDiceImages(gameViewModel.whiteDices) //Checks for saved dices and sets the image resource to a grey dice
+            refreshPairedDiceImages(gameViewModel.whiteDices) //Checks for paired dices and sets the image resource to a red dice
         }
     }
 
@@ -376,7 +372,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         binding.button.setOnClickListener { //Logic for every throw
             if (gameViewModel.round < gameViewModel.gameRounds) {
                 button.text = "THROW"
-                submitButton.isEnabled = false
                 for (dice in gameViewModel.whiteDices) { //Check if dice is saved, if not, reroll it's value and update the drawable ID
                     if (!dice.isSaved) {
                         dice.throwDice()
@@ -395,6 +390,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     gameViewModel.round = gameViewModel.round + 1
                 } else {
                     isPairing = false
+                    currentScore.text = "Current score for this round: "
                 }
             }
         }
@@ -418,38 +414,33 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             checkDicesPaired(binding) //checks whether all of the dices are paired and modifies imageview onclick listeners
 
             if (gameViewModel.dicesPaired) { //if ALL dices are paired
-                submitButton.isEnabled = true
                 binding.submitPairsButton.visibility = View.INVISIBLE //Hide pair button
                 gameViewModel.listOfResult.add(gameViewModel.score)
                 gameViewModel.listOfModes.add(selectedItem)
                 gameViewModel.score = 0 //reset score for next round
+                prepareNextRound(binding)
             }
         }
     }
 
-    private fun initSubmitButtonListener(binding: ActivityMainBinding) {
-        submitButton.setOnClickListener { //Logic for submitting the round
-            if (gameViewModel.round < gameViewModel.gameRounds) {
-                currentScore.text = "Current score for this round: "
-                val selectedItem = spinner.selectedItem.toString()
-                resetDiceSaveState(gameViewModel.whiteDices) //reset all dice that was saved
-                gameViewModel.gameModes.remove(selectedItem) //remove gamemode from list
-                updateSpinner(spinner, gameViewModel.gameModes)
-                binding.button.isEnabled=true
-                if(binding.button.isEnabled) { //If throw button is enabled, disable submit button
-                    submitButton.isEnabled=false
-                }
-                gameViewModel.throws = 0 //reset throws
-                resetDicesPaired()
-                resetDicesLockedIn()
-                initDiceOnClickListeners(binding)
+    private fun prepareNextRound(binding: ActivityMainBinding) {
+        if (gameViewModel.round < gameViewModel.gameRounds) {
+            val selectedItem = spinner.selectedItem.toString()
+            resetDiceSaveState(gameViewModel.whiteDices) //reset all dice that was saved
+            gameViewModel.gameModes.remove(selectedItem) //remove gamemode from list
+            updateSpinner(spinner, gameViewModel.gameModes)
+            binding.button.isEnabled=true
+            gameViewModel.throws = 0 //reset throws
+            resetDicesPaired()
+            resetDicesLockedIn()
+            initDiceOnClickListeners(binding)
+            isPairing = false
 
-            } else { //Create, start a new activity and pass over the gamemode list and result list as extras
-                val intent = Intent(this,RecyclerResultActivity::class.java)
-                intent.putExtra("GameName", gameViewModel.listOfModes)
-                intent.putExtra("GameScore",gameViewModel.listOfResult)
-                startActivity(intent)
-            }
+        } else { //Create, start a new activity and pass over the gamemode list and result list as extras
+            val intent = Intent(this,RecyclerResultActivity::class.java)
+            intent.putExtra("GameName", gameViewModel.listOfModes)
+            intent.putExtra("GameScore",gameViewModel.listOfResult)
+            startActivity(intent)
         }
     }
 
