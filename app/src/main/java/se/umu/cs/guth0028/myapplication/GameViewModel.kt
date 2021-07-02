@@ -6,14 +6,14 @@ class GameViewModel : ViewModel() {
 
     var listOfModes = arrayListOf<String>()
     var listOfResult = arrayListOf<Int>()
-    var listOfPairs = mutableListOf<Dice>()
+    var listOfPairs = arrayListOf<Dice>()
     var dicesPaired: Boolean = false
     var round = 0
     var throws = 0
     var score = 0
     val gameRoundThrows = 3
 
-    var gameModes = mutableListOf(
+    var gameModes = arrayListOf(
         "low",
         "4",
         "5",
