@@ -34,8 +34,11 @@ HOW TO PLAY
  
 NOTE: Pairs do not matter when playing the low gamemode since it will score based on the individual dices and not pairs!
 
-![start](https://user-images.githubusercontent.com/28981311/123262508-3d476880-d4f8-11eb-8adf-ffcb3a0320c3.png)
-![paired](https://user-images.githubusercontent.com/28981311/123262519-3fa9c280-d4f8-11eb-8ce8-82ba1373a232.png)
-![pairError](https://user-images.githubusercontent.com/28981311/123262527-41738600-d4f8-11eb-8cea-6c87e5b19a6a.png)
-![image](https://user-images.githubusercontent.com/28981311/123618009-15157d80-d808-11eb-8633-40317154dd0a.png)
-![image](https://user-images.githubusercontent.com/28981311/123617904-ffa05380-d807-11eb-92b6-2507086c39d1.png)
+![image](https://user-images.githubusercontent.com/28981311/124291464-e32c5000-db54-11eb-9294-626f1cd9ea69.png)
+![image](https://user-images.githubusercontent.com/28981311/124291506-ecb5b800-db54-11eb-934b-6b08f1b29ba8.png)
+![image](https://user-images.githubusercontent.com/28981311/124291537-f50df300-db54-11eb-837f-4d6fb123d417.png)
+![image](https://user-images.githubusercontent.com/28981311/124291585-00611e80-db55-11eb-839c-4c3c31e641c7.png)
+![image](https://user-images.githubusercontent.com/28981311/124291619-07882c80-db55-11eb-8f4b-2717df85b378.png)
+![image](https://user-images.githubusercontent.com/28981311/124291676-1a026600-db55-11eb-8c71-def29b23315f.png)
+![image](https://user-images.githubusercontent.com/28981311/124291766-30a8bd00-db55-11eb-9352-15ceb91863f6.png)
+
