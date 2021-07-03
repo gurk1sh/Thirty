@@ -54,4 +54,32 @@ class GameViewModel : ViewModel() {
         Dice(5, false, false,R.drawable.red5,false),
         Dice(6, false, false,R.drawable.red6,false),
     )
+
+    fun resetDicesPaired() { //Resets state for all paired dices
+        for (dice in whiteDices) {
+            if (dice.isPaired) {
+                dice.isPaired = false
+            }
+            dicesPaired = false
+        }
+    }
+
+    fun resetDicesLockedIn() { //Resets state for all paired dices
+        for (dice in whiteDices) {
+            if (dice.isLockedIn) {
+                dice.isLockedIn = false
+            }
+            dicesPaired = false
+        }
+    }
+
+    fun checkThrows(throws: Int) : Boolean {
+        return this.throws >= throws
+    }
+
+    fun checkIsLockedIn(index: Int) : Boolean {
+        return whiteDices[index].isLockedIn
+    }
+
 }
+
